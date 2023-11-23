@@ -1,57 +1,38 @@
 import tkinter as tk
 
+from evaluation_checklist_screen import EvaluationChecklistScreen
+from register_feeling_screen import RegisterFeelingScreen
+from standard_button_in_grid import StandardButtonInGrid
+
 
 class View:
-    def __init__(self, controller, model):
-        self._controler = controller
-        self._model = model
-        self.main_window = tk.Tk()
+    def __init__(self, controller):
+        self._controller = controller
+        self._main_window = tk.Tk()
 
-    def open_main_screen(self):
-        self.main_window.title("Mental Health software")
+    def display_main_screen(self):
+        self._main_window.geometry("300x150")
+        self._main_window.title("Mental Health software")
 
-        label = tk.Label(self.main_window, text="Welcome to the Program!")
-        label.pack()
+        # Creating buttons in a 2x2 grid
+        StandardButtonInGrid(parent=self._main_window, button_name="Stats",
+                             row=1, column=0)
+        StandardButtonInGrid(parent=self._main_window, button_name="Checklist",
+                             row=1, column=1,
+                             command=self._controller.on_evaluation_checklist_button)
+        StandardButtonInGrid(parent=self._main_window, button_name="Perform "
+                                                                   "Analysis",
+                             row=2, column=0)
+        StandardButtonInGrid(parent=self._main_window, button_name="Register "
+                                                                   "Feeling",
+                             row=2, column=1,
+                             command=self._controller.on_register_feeling_button)
 
-        stats_button = tk.Button(self.main_window, text="Go to Statistics")
-        stats_button.pack()
+        self._main_window.mainloop()
 
-        form_button = tk.Button(self.main_window, text="Fill Out Form",
-                                command=lambda:
-                                self.present_depression_checklist())
-        form_button.pack()
+    def display_register_feeling_screen(self):
+        RegisterFeelingScreen(self._main_window, self._controller)
 
-        self.main_window.mainloop()
-
-    def present_depression_checklist(self):
-        checklist_window = tk.Toplevel(self.main_window)
-        checklist_window.title("Depression Checklist")
-
-        # Dictionary to store the IntVar associated with each question's set
-        # of radio buttons
-        user_answers = {}
-
-        # Create a header row for answer options
-        for score, desc in self._model.depression_checklist.response_options.items():
-            header_label = tk.Label(checklist_window, text=desc)
-            header_label.grid(row=0, column=score + 1, padx=10,
-                              pady=10)  # Adjust the padding as needed
-
-        # Create the question rows with radio buttons for answer options
-        for idx, question in enumerate(
-                self._model.depression_checklist.questions):
-            # Label for the question
-            question_label = tk.Label(checklist_window, text=question)
-            question_label.grid(row=idx + 1, column=0, sticky='w', padx=10,
-                                pady=2)  # Align left (west)
-
-            # IntVar to store the answer to this question
-            user_answers[idx] = tk.IntVar(value=0)  # Default value
-
-            # Create a radio button for each response option
-            for score in self._model.depression_checklist.response_options:
-                radio_button = tk.Radiobutton(checklist_window,
-                                              variable=user_answers[idx],
-                                              value=score)
-                radio_button.grid(row=idx + 1, column=score + 1, padx=10,
-                                  pady=2)
+    def display_evaluation_checklist_screen(self, evaluation_checklist):
+        EvaluationChecklistScreen(self._main_window, self._controller,
+                                  evaluation_checklist)
